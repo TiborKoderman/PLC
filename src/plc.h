@@ -10,8 +10,8 @@
 
 #define BUZZER 33
 
-#define buttonL 4
-#define buttonR 5
+#define BTNL 4
+#define BTNR 5
 
 #define IO1 27
 #define IO2 14
@@ -25,8 +25,8 @@
 #define VP 36
 #define VN 39
 
-#define SDA 21
-#define SCK 22
+//#define SDA 21
+//#define SCK 22
 
 #define AO1 25
 #define AO2 26
