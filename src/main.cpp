@@ -5,7 +5,7 @@
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_SH1106.h"
-
+//#include "images.h"
 Adafruit_SH1106 display(21,22);
 
 bool toggle = false;
@@ -19,6 +19,23 @@ void IRAM_ATTR isr()
     digitalWrite(ACOUT1, LOW);
 }
 
+static const unsigned char PROGMEM logo16_glcd_bmp[] =
+{ B00000000, B11000000,
+  B00000001, B11000000,
+  B00000001, B11000000,
+  B00000011, B11100000,
+  B11110011, B11100000,
+  B11111110, B11111000,
+  B01111110, B11111111,
+  B00110011, B10011111,
+  B00011111, B11111100,
+  B00001101, B01110000,
+  B00011011, B10100000,
+  B00111111, B11100000,
+  B00111111, B11110000,
+  B01111100, B11110000,
+  B01110000, B01110000,
+  B00000000, B00110000 };
 
 void setup() {
   Serial.begin(115200);
@@ -69,13 +86,16 @@ void setup() {
   // digitalWrite(ACOUT3, LOW);
   // digitalWrite(ACOUT4, LOW);
   // //ledcWriteTone(0, 0);
-  // delay(500);
+  display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
+  //display.drawBitmap(0, 0,  Klogo, 128, 64, 1);
+
+  delay(5000);
   
 }
  
 
  int counter =0;
- String  hw = "Pozdravljeni!!!";
+ String  hw = "Test 2";
 void loop() {
   //Serial.println("wait, wnat");
 
