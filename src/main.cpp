@@ -5,44 +5,23 @@
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_SH1106.h"
-//#include "images.h"
+#include "images.h"
+#include <cmath>
+
+
 Adafruit_SH1106 display(21,22);
 
 bool toggle = false;
 
-void IRAM_ATTR isr()
-{
-  toggle = !toggle;
-    if(toggle)
-    digitalWrite(ACOUT1, HIGH);
-  else
-    digitalWrite(ACOUT1, LOW);
-}
+void drawLoadingBar(int x0,int y0,int width,int height, int percentage);
+void bluetoothPairingMode();
 
-static const unsigned char PROGMEM logo16_glcd_bmp[] =
-{ B00000000, B11000000,
-  B00000001, B11000000,
-  B00000001, B11000000,
-  B00000011, B11100000,
-  B11110011, B11100000,
-  B11111110, B11111000,
-  B01111110, B11111111,
-  B00110011, B10011111,
-  B00011111, B11111100,
-  B00001101, B01110000,
-  B00011011, B10100000,
-  B00111111, B11100000,
-  B00111111, B11110000,
-  B01111100, B11110000,
-  B01110000, B01110000,
-  B00000000, B00110000 };
 
 void setup() {
   Serial.begin(115200);
 
   pinMode(BTNL, INPUT_PULLUP);
   pinMode(BTNR, INPUT_PULLUP);
-  attachInterrupt(BTNL, isr, FALLING);
 
   display.begin(SH1106_SWITCHCAPVCC, 0x3C); 
   display.clearDisplay();
@@ -86,10 +65,45 @@ void setup() {
   // digitalWrite(ACOUT3, LOW);
   // digitalWrite(ACOUT4, LOW);
   // //ledcWriteTone(0, 0);
-  display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
+  //display.drawBitmap(0, 0, Klogo, 128, 64, 1);
   //display.drawBitmap(0, 0,  Klogo, 128, 64, 1);
+ //display.display();
 
-  delay(5000);
+
+
+  //display.drawCircle(display.width()/2, display.height()/2, 30, 1);
+
+  bool flagBTpairMode = false;
+
+  unsigned long int buttonPressTimeout = 0;
+
+  bool buttonsPressed = false;
+
+  for(int i = 1; i<=100; i++)
+  {
+    drawLoadingBar(14,32,100,10,i);
+
+    if(!digitalRead(BTNL) && !digitalRead(BTNR))
+    {
+      if(buttonPressTimeout == 0)
+      {
+        buttonPressTimeout = millis();
+        buttonsPressed = true;
+      }
+      else if (millis()-buttonPressTimeout>2000 && buttonsPressed)
+        flagBTpairMode = true;
+    }
+    else
+      buttonsPressed= false;
+  }
+  if(flagBTpairMode)
+    bluetoothPairingMode();
+
+  
+  delay(1000);
+  display.clearDisplay();
+  //display.display();
+  //delay(10000);
   
 }
  
@@ -97,17 +111,29 @@ void setup() {
  int counter =0;
  String  hw = "Test 2";
 void loop() {
-  //Serial.println("wait, wnat");
 
-  display.clearDisplay();
-  display.setTextSize(1.5);
-  display.setTextColor(WHITE);
-  display.setCursor(0,0);
-  if(counter<=hw.length())
-    display.println(hw.substring(0,counter++));
-  else
-    counter=0;
+}
+
+
+
+
+void drawLoadingBar(int x0,int y0,int width,int height, int percentage)
+{
+  display.drawRect(x0,y0,width,height,1);
+  display.fillRect(x0,y0,percentage,height, 1);
   display.display();
-  delay(500);
+}
 
+void bluetoothPairingMode()
+{
+   display.clearDisplay();
+  for(int i = 0; i<20; i++)
+  {
+    if(i%2==0)
+    display.drawBitmap(display.width()/2-21/2,display.height()/2-32/2,BTLogo,21,32,1);
+    else
+    display.clearDisplay();
+    display.display();
+    delay(500);
+  }
 }
