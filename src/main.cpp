@@ -1,16 +1,21 @@
-#include "Arduino.h"
-#include "plc.h"
-
-#include "Adafruit_GFX.h"
-#include "Adafruit_SH1106.h"
-#include "images.h"
+#include <Arduino.h>
 #include <WiFi.h>
 #include <Preferences.h>
 
+//
+#include "plc.h"
 
+//
+#include "Adafruit_GFX.h"
+#include "Adafruit_SH1106.h"
+#include "images.h"
+
+//wireless conectivity functions
 #include "bluetooth.h"
 #include "wifiHeader.h"
-//#include "display.h"
+#include "mqtt.h"
+
+PubSubClient PSclient;
 
 Preferences preferences;
 
@@ -18,7 +23,7 @@ Preferences preferences;
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-Adafruit_SH1106 display(21,22); // Inicializira display
+Adafruit_SH1106 display(-1,-1); // Inicializira display
 
 void drawLoadingBar(int x0,int y0,int width,int height, int percentage);
 
@@ -38,6 +43,9 @@ void setup() {
 
   Serial.println(String(WiFiSSID)+" "+String(WiFiPassword));
   //strcpy(WiFiPassword, preferences.getString("Password","NULL");
+
+  PSclient.setServer("koderman.net",1883);
+  PSclient.setCallback(mqttcallback);
 
   pinMode(BTNL, INPUT_PULLUP);
   pinMode(BTNR, INPUT_PULLUP);
@@ -60,12 +68,20 @@ void setup() {
   bool flagBTpairMode = false;
 
   unsigned long int buttonPressTimeout = 0;
-
+  unsigned long int wifiTryTimeout = 0;
   bool buttonsPressed = false;
 
   for(int i = 1; i<=100; i++)
   {
     drawLoadingBar(14,32,100,10,i);
+
+    if((millis()-wifiTryTimeout > 3000 || wifiTryTimeout==0) && WiFi.status() != WL_CONNECTED)
+    {
+      initWiFi(WiFiSSID, WiFiPassword);
+      display.drawBitmap(128-31, 5, wifiLogo, 26,21,WHITE);
+      display.display();
+      wifiTryTimeout = millis();
+    }
 
     if(!digitalRead(BTNL) && !digitalRead(BTNR))
     {
@@ -88,10 +104,17 @@ void setup() {
   if(flagBTpairMode)
     bluetoothPairingMode(display, preferences);
 
+    
+  if(!PSclient.connected())
+  {
+      mqttreconnect(PSclient);
+  }
+
     preferences.getString("SSID",WiFiSSID,32);
     preferences.getString("Password", WiFiPassword,32);
-      initWiFi(WiFiSSID, WiFiPassword);
-  display.clearDisplay();
+    display.clearDisplay();
+    display.display();
+  display.drawBitmap(128-31, 5, wifiLogo, 26,21,WHITE);
   display.display();
 }
 

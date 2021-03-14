@@ -69,6 +69,7 @@ void bluetoothPairingMode(Adafruit_SH1106 display, Preferences preferences)
       preferences.putString("Password", pass);
       Serial.println("Succesfully updated ssid: "+String(ssid)+" password: "+String(pass));
       SerialBT.disconnect();
+      ESP.restart();
       }
       }
     }
