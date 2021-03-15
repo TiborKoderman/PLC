@@ -15,7 +15,10 @@
 #include "wifiHeader.h"
 #include "mqtt.h"
 
-PubSubClient PSclient;
+
+WiFiClient wifiClient;
+
+PubSubClient mqtt(wifiClient);
 
 Preferences preferences;
 
@@ -37,6 +40,9 @@ void setup() {
 
   preferences.begin("Settings", false);
 
+  mqtt.setServer("koderman.net",1883);
+  mqtt.setCallback(mqttcallback);
+
   //strcpy(WiFiSSID, preferences.getString("SSID","NULL");
   preferences.getString("SSID","NULL").toCharArray(WiFiSSID, 32);
   preferences.getString("Password","NULL").toCharArray(WiFiPassword,32);
@@ -44,8 +50,7 @@ void setup() {
   Serial.println(String(WiFiSSID)+" "+String(WiFiPassword));
   //strcpy(WiFiPassword, preferences.getString("Password","NULL");
 
-  PSclient.setServer("koderman.net",1883);
-  PSclient.setCallback(mqttcallback);
+
 
   pinMode(BTNL, INPUT_PULLUP);
   pinMode(BTNR, INPUT_PULLUP);
@@ -70,21 +75,32 @@ void setup() {
   unsigned long int buttonPressTimeout = 0;
   unsigned long int wifiTryTimeout = 0;
   bool buttonsPressed = false;
+  bool stattimeout = false;
 
   for(int i = 1; i<=100; i++)
   {
     drawLoadingBar(14,32,100,10,i);
 
-    if((millis()-wifiTryTimeout > 3000 || wifiTryTimeout==0) && WiFi.status() != WL_CONNECTED)
+    if((millis()-wifiTryTimeout > 5000 || wifiTryTimeout==0) && WiFi.status() != WL_CONNECTED)
     {
       initWiFi(WiFiSSID, WiFiPassword);
-      display.drawBitmap(128-31, 5, wifiLogo, 26,21,WHITE);
-      display.display();
       wifiTryTimeout = millis();
+      stattimeout = true;
     }
+    if(WiFi.status() == WL_CONNECTED && stattimeout)
+      {
+        display.drawBitmap(128-31, 5, wifiLogo, 26,21,WHITE);
+        display.display();
+        Serial.println(WiFi.localIP());
+        stattimeout = false;
+
+        if(!mqtt.connected())
+          mqttreconnect(mqtt);
+      }
 
     if(!digitalRead(BTNL) && !digitalRead(BTNR))
     {
+      
       if(buttonPressTimeout == 0)
       {
         buttonPressTimeout = millis();
@@ -104,21 +120,27 @@ void setup() {
   if(flagBTpairMode)
     bluetoothPairingMode(display, preferences);
 
-    
-  if(!PSclient.connected())
-  {
-      mqttreconnect(PSclient);
-  }
-
     preferences.getString("SSID",WiFiSSID,32);
     preferences.getString("Password", WiFiPassword,32);
     display.clearDisplay();
     display.display();
+
+
+
+
   display.drawBitmap(128-31, 5, wifiLogo, 26,21,WHITE);
+  if(WiFi.status() != WL_CONNECTED)
+  {
+    display.drawLine(128-31, 27, 128-3, 3, 1);
+    display.drawLine(128-32, 26, 128-4, 4, 1);
+    display.drawLine(128-31, 25, 128-3, 2, 1);
+  }
+    
   display.display();
 }
 
 void loop() {
+mqtt.loop();
 
 }
 
@@ -131,6 +153,4 @@ void drawLoadingBar(int x0,int y0,int width,int height, int percentage)
   display.fillRect(x0,y0,percentage,height, 1);
   display.display();
 }
-
-
 

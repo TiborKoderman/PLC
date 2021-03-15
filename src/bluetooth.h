@@ -13,6 +13,7 @@ StaticJsonDocument<128> docWiFi;
 
 void bluetoothPairingMode(Adafruit_SH1106 display, Preferences preferences)
 {
+  WiFi.disconnect();
   Serial.println("Entering pairing mode");
   long int timeout = millis();
   bool on = true;
@@ -39,7 +40,7 @@ void bluetoothPairingMode(Adafruit_SH1106 display, Preferences preferences)
 
     while(SerialBT.connected())
     {
-      Serial.println("Entered loop");
+      //Serial.println("Entered loop");
 
           
 
