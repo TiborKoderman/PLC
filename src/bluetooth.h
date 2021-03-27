@@ -42,9 +42,6 @@ void bluetoothPairingMode(Adafruit_SH1106 display, Preferences preferences)
     {
       //Serial.println("Entered loop");
 
-          
-
-
       if(SerialBT.available()){
         String json = SerialBT.readString();
         Serial.println(json);

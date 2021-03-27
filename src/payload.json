@@ -1,0 +1,22 @@
+{
+    "ac1": false,
+    "ac2": false,
+    "ac3": false,
+    "ac4": false,
+
+    "dc1": false,
+    "dc2": false,
+    "dc3": false,
+    "dc4": false,
+
+    "io1": false,
+    "io2": false,
+    "io3": false,
+    "io4": false,
+    "io5": false,
+
+    "ao1": 0,
+    "ao2": 0,
+    
+    "displaymsg": 0
+}

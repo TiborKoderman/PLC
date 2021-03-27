@@ -127,7 +127,11 @@ void setup() {
 
 
 
-
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println(WiFi.macAddress());
+  
   display.drawBitmap(128-31, 5, wifiLogo, 26,21,WHITE);
   if(WiFi.status() != WL_CONNECTED)
   {
@@ -135,16 +139,19 @@ void setup() {
     display.drawLine(128-32, 26, 128-4, 4, 1);
     display.drawLine(128-31, 25, 128-3, 2, 1);
   }
-    
+  else
+  {
+    display.setCursor(0,10);
+    display.println(WiFi.localIP());
+  }
   display.display();
 }
 
 void loop() {
 mqtt.loop();
-
+if(!mqtt.connected())
+    mqttreconnect(mqtt);
 }
-
-
 
 
 void drawLoadingBar(int x0,int y0,int width,int height, int percentage)
