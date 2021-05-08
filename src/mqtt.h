@@ -28,15 +28,13 @@ void mqttreconnect(PubSubClient &mqtt){
 void mqttcallback(char* topic, byte* payload, unsigned int length) 
 {
   String message;
-  if(doc["objType"]=="cts")
-    return;
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
+  //Serial.print("Message arrived [");
+  //Serial.print(topic);
+  //Serial.print("] ");
   for (int i=0;i<length;i++) {
     message+= (char)payload[i];
   }
-  Serial.println(message);
+  //Serial.println(message);
 
   //TODO: Recieve messages and do logic
   
