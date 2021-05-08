@@ -57,15 +57,15 @@ void setup() {
 
   display.begin(SH1106_SWITCHCAPVCC, 0x3C); 
   display.clearDisplay();
-  // pinMode(DCOUT1, OUTPUT);
-  // pinMode(DCOUT2, OUTPUT);
-  // pinMode(DCOUT3, OUTPUT);
-  // pinMode(DCOUT4, OUTPUT);
+   pinMode(DCOUT1, OUTPUT);
+   pinMode(DCOUT2, OUTPUT);
+   pinMode(DCOUT3, OUTPUT);
+   pinMode(DCOUT4, OUTPUT);
   
    pinMode(ACOUT1, OUTPUT);
-  // pinMode(ACOUT2, OUTPUT);
-  // pinMode(ACOUT3, OUTPUT);
-  // pinMode(ACOUT4, OUTPUT);
+   pinMode(ACOUT2, OUTPUT);
+   pinMode(ACOUT3, OUTPUT);
+   pinMode(ACOUT4, OUTPUT);
 
   // ledcSetup(0, 5000,8);
   // ledcAttachPin(BUZZER, 0);
@@ -147,11 +147,21 @@ void setup() {
   display.display();
 }
 
+unsigned long sec = millis();
+
 void loop() {
-mqtt.loop();
-if(!mqtt.connected())
-    mqttreconnect(mqtt);
+  mqtt.loop();
+  if(!mqtt.connected())
+      mqttreconnect(mqtt);
+
+  if(millis()-sec>1000)
+  {
+    readNsend(mqtt);
+    sec = millis();
+  }
 }
+
+
 
 
 void drawLoadingBar(int x0,int y0,int width,int height, int percentage)
