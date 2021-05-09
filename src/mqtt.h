@@ -28,13 +28,14 @@ void mqttreconnect(PubSubClient &mqtt){
 void mqttcallback(char* topic, byte* payload, unsigned int length) 
 {
   String message;
-  //Serial.print("Message arrived [");
-  //Serial.print(topic);
-  //Serial.print("] ");
+
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
   for (int i=0;i<length;i++) {
     message+= (char)payload[i];
   }
-  //Serial.println(message);
+  Serial.println(message);
 
   //TODO: Recieve messages and do logic
   
@@ -45,7 +46,9 @@ void mqttcallback(char* topic, byte* payload, unsigned int length)
     Serial.println(error.f_str());
     return;
   }
-
+  
+if(doc["objType"]=="cts")
+    return;
   
   
   //Serial.println(<String>doc["AC1"]);
